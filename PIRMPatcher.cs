@@ -22,9 +22,6 @@ namespace PIRM
         }
     }
 
-
-
-    // THIS METHOD IS Causing an issue of not being able to move items back at all probably.... or maybe need new one for itemspecifcationpanel
     public class PIRMGlass2428Smethod1 : ModulePatch
     {
         protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(GClass2428), "smethod_1");
