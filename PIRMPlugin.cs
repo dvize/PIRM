@@ -6,7 +6,7 @@ using VersionChecker;
 namespace PIRM
 {
 
-    [BepInPlugin("com.dvize.PIRM", "dvize.PIRM", "1.5.5")]
+    [BepInPlugin("com.dvize.PIRM", "dvize.PIRM", "1.6.0")]
     class PIRMPlugin : BaseUnityPlugin
     {
         private void Awake()
@@ -17,9 +17,10 @@ namespace PIRM
         {
             new PIRMMethod17Patch().Enable();
             new PIRMGlass2428Smethod1().Enable();
-            new SlotViewMethod2().Enable();
+            new ItemCheckAction().Enable();
             new EFTInventoryLogicModPatch().Enable();
-
+            new LootItemApplyPatch().Enable();
+            //new SlotMethod_2Patch().Enable();  - seems to enable all equipment slots to take any item instead of the weapon slot.  error coming from weapon check itself somewhere.  says multitool required
         }
 
         private void CheckEftVersion()
