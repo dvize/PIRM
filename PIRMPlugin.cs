@@ -7,6 +7,7 @@ namespace PIRM
 {
 
     [BepInPlugin("com.dvize.PIRM", "dvize.PIRM", "1.6.0")]
+    [BepInDependency("com.spt-aki.core", "3.6.0")]
     class PIRMPlugin : BaseUnityPlugin
     {
         private void Awake()
