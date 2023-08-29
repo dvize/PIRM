@@ -6,8 +6,8 @@ using VersionChecker;
 namespace PIRM
 {
 
-    [BepInPlugin("com.dvize.PIRM", "dvize.PIRM", "1.6.0")]
-    [BepInDependency("com.spt-aki.core", "3.6.0")]
+    [BepInPlugin("com.dvize.PIRM", "dvize.PIRM", "1.7.0")]
+    [BepInDependency("com.spt-aki.core", "3.7.0")]
     class PIRMPlugin : BaseUnityPlugin
     {
         private void Awake()
@@ -17,7 +17,7 @@ namespace PIRM
         private void Start()
         {
             new PIRMMethod17Patch().Enable();
-            new PIRMGlass2428Smethod1().Enable();
+            new PIRMGlass3053Smethod1().Enable();
             new ItemCheckAction().Enable();
             new EFTInventoryLogicModPatch().Enable();
             new LootItemApplyPatch().Enable();
