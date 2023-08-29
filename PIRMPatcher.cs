@@ -27,7 +27,7 @@ namespace PIRM
 
     public class PIRMGlass3053Smethod1 : ModulePatch
     {
-        protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(GClass3053), "smethod_1");
+        protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(GClass2567), "smethod_1");
 
         [PatchPrefix]
         public static bool Prefix(Item item, ItemAddress to, TraderControllerClass itemController, ref GStruct377<GClass3053> __result)
