@@ -25,17 +25,17 @@ namespace PIRM
         }
     }
 
-    public class PIRMGlass3053Smethod1 : ModulePatch
+    public class PIRMGlass2584Smethod1 : ModulePatch
     {
-        protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(GClass2567), "smethod_1");
+        protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(GClass2584), "smethod_1");
 
         [PatchPrefix]
-        public static bool Prefix(Item item, ItemAddress to, TraderControllerClass itemController, ref GStruct377<GClass3053> __result)
+        public static bool Prefix(Item item, ItemAddress to, TraderControllerClass itemController, ref GStruct376<GClass3071> __result)
         {
 
-            if (GClass1709.InRaid)
+            if (GClass1716.InRaid)
             {
-                __result = GClass3053._;
+                __result = GClass3071._;
                 return false;
             }
 
@@ -64,7 +64,7 @@ namespace PIRM
         protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(EFT.InventoryLogic.Mod), "CanBeMoved");
 
         [PatchPrefix]
-        public static bool Prefix(IContainer toContainer, ref GStruct377<bool> __result)
+        public static bool Prefix(IContainer toContainer, ref GStruct376<bool> __result)
         {
             __result = true;
             return false;
@@ -92,11 +92,11 @@ namespace PIRM
         protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(LootItemClass), "Apply");
 
         [PatchPrefix]
-        private static bool Prefix(ref LootItemClass __instance, ref GStruct375 __result, TraderControllerClass itemController, Item item, int count, bool simulate)
+        private static bool Prefix(ref LootItemClass __instance, ref GStruct374 __result, TraderControllerClass itemController, Item item, int count, bool simulate)
         {
             if (!item.ParentRecursiveCheck(__instance))
             {
-                __result = new GClass3009(item, __instance);
+                __result = new GClass3027(item, __instance);
                 return false;
             }
             //bool inRaid = GClass1819.InRaid;
@@ -107,13 +107,13 @@ namespace PIRM
 
             Mod mod = item as Mod;
             Slot[] array = ((mod != null && inRaid) ? __instance.VitalParts.ToArray<Slot>() : null);
-            Slot.GClass3020 gclass;
+            Slot.GClass3038 gclass;
 
             if (inRaid && mod != null && !mod.RaidModdable)
             {
-                error2 = new GClass3006(mod);
+                error2 = new GClass3024(mod);
             }
-            else if (!GClass2567.CheckMissingParts(mod, __instance.CurrentAddress, itemController, out gclass))
+            else if (!GClass2584.CheckMissingParts(mod, __instance.CurrentAddress, itemController, out gclass))
             {
                 error2 = gclass;
             }
@@ -125,34 +125,34 @@ namespace PIRM
                 {
                     if (error2 != null)
                     {
-                        Slot.GClass3020 gclass2;
-                        if ((gclass2 = error2 as Slot.GClass3020) != null)
+                        Slot.GClass3038 gclass2;
+                        if ((gclass2 = error2 as Slot.GClass3038) != null)
                         {
-                            error2 = new Slot.GClass3020(gclass2.Item, slot, gclass2.MissingParts);
+                            error2 = new Slot.GClass3038(gclass2.Item, slot, gclass2.MissingParts);
                         }
                         flag = true;
                     }
                     else if (array != null && array.Contains(slot))
                     {
-                        error = new GClass3007(mod);
+                        error = new GClass3025(mod);
                     }
                     else
                     {
-                        GClass2560 gclass3 = new GClass2560(slot);
-                        GStruct376<GClass2579> gstruct = GClass2567.Move(item, gclass3, itemController, simulate);
+                        GClass2577 gclass3 = new GClass2577(slot);
+                        GStruct375<GClass2596> gstruct = GClass2584.Move(item, gclass3, itemController, simulate);
                         if (gstruct.Succeeded)
                         {
                             __result = gstruct;
                             return false;
                         }
-                        GStruct376<GClass2588> gstruct2 = GClass2567.SplitMax(item, int.MaxValue, gclass3, itemController, itemController, simulate);
+                        GStruct375<GClass2605> gstruct2 = GClass2584.SplitMax(item, int.MaxValue, gclass3, itemController, itemController, simulate);
                         if (gstruct2.Succeeded)
                         {
                             __result = gstruct2;
                             return false;
                         }
                         error = gstruct.Error;
-                        if (!GClass666.DisabledForNow && GClass2568.CanSwap(item, slot))
+                        if (!GClass668.DisabledForNow && GClass2585.CanSwap(item, slot))
                         {
                             __result = null;
                             return false;
@@ -164,20 +164,20 @@ namespace PIRM
             {
                 error2 = null;
             }
-            GStruct376<GInterface271> gstruct3 = GClass2567.QuickFindAppropriatePlace(item, itemController, __instance.ToEnumerable<LootItemClass>(), GClass2567.EMoveItemOrder.Apply, simulate);
+            GStruct375<GInterface275> gstruct3 = GClass2584.QuickFindAppropriatePlace(item, itemController, __instance.ToEnumerable<LootItemClass>(), GClass2584.EMoveItemOrder.Apply, simulate);
             if (gstruct3.Succeeded)
             {
                 __result = gstruct3;
                 return false;
             }
-            if (!(gstruct3.Error is GClass3002))
+            if (!(gstruct3.Error is GClass3020))
             {
                 error = gstruct3.Error;
             }
             Error error3;
             if ((error3 = error2) == null)
             {
-                error3 = error ?? new GClass3009(item, __instance);
+                error3 = error ?? new GClass3027(item, __instance);
             }
             __result = error3;
             return false;

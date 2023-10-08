@@ -17,7 +17,7 @@ namespace PIRM
         private void Start()
         {
             new PIRMMethod17Patch().Enable();
-            new PIRMGlass3053Smethod1().Enable();
+            new PIRMGlass2584Smethod1().Enable();
             new ItemCheckAction().Enable();
             new EFTInventoryLogicModPatch().Enable();
             new LootItemApplyPatch().Enable();
