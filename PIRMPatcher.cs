@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Reflection;
 using Aki.Reflection.Patching;
-using Comfort.Common;
 using Diz.LanguageExtensions;
 using EFT.InventoryLogic;
 using EFT.UI;
@@ -27,15 +26,15 @@ namespace PIRM
 
     public class PIRMGlass2584Smethod1 : ModulePatch
     {
-        protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(GClass2584), "smethod_1");
+        protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(GClass2585), "smethod_1");
 
         [PatchPrefix]
-        public static bool Prefix(Item item, ItemAddress to, TraderControllerClass itemController, ref GStruct376<GClass3071> __result)
+        public static bool Prefix(Item item, ItemAddress to, TraderControllerClass itemController, ref GStruct376<GClass3072> __result)
         {
 
             if (GClass1716.InRaid)
             {
-                __result = GClass3071._;
+                __result = GClass3072._;
                 return false;
             }
 
@@ -96,10 +95,10 @@ namespace PIRM
         {
             if (!item.ParentRecursiveCheck(__instance))
             {
-                __result = new GClass3027(item, __instance);
+                __result = new GClass3028(item, __instance);
                 return false;
             }
-            //bool inRaid = GClass1819.InRaid;
+            //bool inRaid = GClass1716.InRaid;
             bool inRaid = false;
 
             Error error = null;
@@ -107,13 +106,13 @@ namespace PIRM
 
             Mod mod = item as Mod;
             Slot[] array = ((mod != null && inRaid) ? __instance.VitalParts.ToArray<Slot>() : null);
-            Slot.GClass3038 gclass;
+            Slot.GClass3039 gclass;
 
             if (inRaid && mod != null && !mod.RaidModdable)
             {
-                error2 = new GClass3024(mod);
+                error2 = new GClass3025(mod);
             }
-            else if (!GClass2584.CheckMissingParts(mod, __instance.CurrentAddress, itemController, out gclass))
+            else if (!GClass2585.CheckMissingParts(mod, __instance.CurrentAddress, itemController, out gclass))
             {
                 error2 = gclass;
             }
@@ -125,34 +124,34 @@ namespace PIRM
                 {
                     if (error2 != null)
                     {
-                        Slot.GClass3038 gclass2;
-                        if ((gclass2 = error2 as Slot.GClass3038) != null)
+                        Slot.GClass3039 gclass2;
+                        if ((gclass2 = error2 as Slot.GClass3039) != null)
                         {
-                            error2 = new Slot.GClass3038(gclass2.Item, slot, gclass2.MissingParts);
+                            error2 = new Slot.GClass3039(gclass2.Item, slot, gclass2.MissingParts);
                         }
                         flag = true;
                     }
                     else if (array != null && array.Contains(slot))
                     {
-                        error = new GClass3025(mod);
+                        error = new GClass3026(mod);
                     }
                     else
                     {
-                        GClass2577 gclass3 = new GClass2577(slot);
-                        GStruct375<GClass2596> gstruct = GClass2584.Move(item, gclass3, itemController, simulate);
+                        GClass2578 gclass3 = new GClass2578(slot);
+                        GStruct375<GClass2597> gstruct = GClass2585.Move(item, gclass3, itemController, simulate);
                         if (gstruct.Succeeded)
                         {
                             __result = gstruct;
                             return false;
                         }
-                        GStruct375<GClass2605> gstruct2 = GClass2584.SplitMax(item, int.MaxValue, gclass3, itemController, itemController, simulate);
+                        GStruct375<GClass2606> gstruct2 = GClass2585.SplitMax(item, int.MaxValue, gclass3, itemController, itemController, simulate);
                         if (gstruct2.Succeeded)
                         {
                             __result = gstruct2;
                             return false;
                         }
                         error = gstruct.Error;
-                        if (!GClass668.DisabledForNow && GClass2585.CanSwap(item, slot))
+                        if (!GClass668.DisabledForNow && GClass2586.CanSwap(item, slot))
                         {
                             __result = null;
                             return false;
@@ -164,20 +163,20 @@ namespace PIRM
             {
                 error2 = null;
             }
-            GStruct375<GInterface275> gstruct3 = GClass2584.QuickFindAppropriatePlace(item, itemController, __instance.ToEnumerable<LootItemClass>(), GClass2584.EMoveItemOrder.Apply, simulate);
+            GStruct375<GInterface275> gstruct3 = GClass2585.QuickFindAppropriatePlace(item, itemController, __instance.ToEnumerable<LootItemClass>(), GClass2585.EMoveItemOrder.Apply, simulate);
             if (gstruct3.Succeeded)
             {
                 __result = gstruct3;
                 return false;
             }
-            if (!(gstruct3.Error is GClass3020))
+            if (!(gstruct3.Error is GClass3021))
             {
                 error = gstruct3.Error;
             }
             Error error3;
             if ((error3 = error2) == null)
             {
-                error3 = error ?? new GClass3027(item, __instance);
+                error3 = error ?? new GClass3028(item, __instance);
             }
             __result = error3;
             return false;

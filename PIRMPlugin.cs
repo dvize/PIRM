@@ -6,8 +6,8 @@ using VersionChecker;
 namespace PIRM
 {
 
-    [BepInPlugin("com.dvize.PIRM", "dvize.PIRM", "1.7.0")]
-    [BepInDependency("com.spt-aki.core", "3.7.0")]
+    [BepInPlugin("com.dvize.PIRM", "dvize.PIRM", "1.7.1")]
+    [BepInDependency("com.spt-aki.core", "3.7.1")]
     class PIRMPlugin : BaseUnityPlugin
     {
         private void Awake()
