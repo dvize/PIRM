@@ -7,6 +7,7 @@ using EFT.InventoryLogic;
 using EFT.UI;
 using EFT.UI.DragAndDrop;
 using HarmonyLib;
+using static WindowsManager;
 
 namespace PIRM
 {
@@ -15,26 +16,32 @@ namespace PIRM
         protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(ItemSpecificationPanel), "method_17");
 
         [PatchPrefix]
-        public static bool PatchPrefix(ref KeyValuePair<EModLockedState, string> __result, Slot slot)
+        public static bool PatchPrefix(ref KeyValuePair<EModLockedState, ModSlotView.GStruct399> __result, Slot slot)
         {
-            string text = ((slot.ContainedItem != null) ? slot.ContainedItem.Name.Localized(null) : string.Empty);
-            __result = new KeyValuePair<EModLockedState, string>(EModLockedState.Unlocked, text);
+            string text = ((slot.ContainedItem != null) ? slot.ContainedItem.Name.Localized() : string.Empty);
+
+            ModSlotView.GStruct399 structValue = new ModSlotView.GStruct399
+            {
+                ItemName = text,
+            };
+
+            __result = new KeyValuePair<EModLockedState, ModSlotView.GStruct399>(EModLockedState.Unlocked, structValue);
 
             return false;
         }
     }
 
-    public class PIRMGlass2584Smethod1 : ModulePatch
+    public class InteractionsHandlerPatch : ModulePatch
     {
-        protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(GClass2585), "smethod_1");
+        protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(InteractionsHandlerClass), "smethod_1");
 
         [PatchPrefix]
-        public static bool Prefix(Item item, ItemAddress to, TraderControllerClass itemController, ref GStruct376<GClass3072> __result)
+        public static bool Prefix(Item item, ItemAddress to, TraderControllerClass itemController, ref GStruct416<GClass3348> __result)
         {
 
-            if (GClass1716.InRaid)
+            if (GClass1849.InRaid)
             {
-                __result = GClass3072._;
+                __result = GClass3348._;
                 return false;
             }
 
@@ -63,7 +70,7 @@ namespace PIRM
         protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(EFT.InventoryLogic.Mod), "CanBeMoved");
 
         [PatchPrefix]
-        public static bool Prefix(IContainer toContainer, ref GStruct376<bool> __result)
+        public static bool Prefix(IContainer toContainer, ref GStruct416<bool> __result)
         {
             __result = true;
             return false;
@@ -91,14 +98,14 @@ namespace PIRM
         protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(LootItemClass), "Apply");
 
         [PatchPrefix]
-        private static bool Prefix(ref LootItemClass __instance, ref GStruct374 __result, TraderControllerClass itemController, Item item, int count, bool simulate)
+        private static bool Prefix(ref LootItemClass __instance, ref GStruct413 __result, TraderControllerClass itemController, Item item, int count, bool simulate)
         {
             if (!item.ParentRecursiveCheck(__instance))
             {
-                __result = new GClass3028(item, __instance);
+                __result = new GClass3300(item, __instance);
                 return false;
             }
-            //bool inRaid = GClass1716.InRaid;
+            //bool inRaid = GClass1849.InRaid;
             bool inRaid = false;
 
             Error error = null;
@@ -106,13 +113,13 @@ namespace PIRM
 
             Mod mod = item as Mod;
             Slot[] array = ((mod != null && inRaid) ? __instance.VitalParts.ToArray<Slot>() : null);
-            Slot.GClass3039 gclass;
+            Slot.GClass3314 gclass;
 
             if (inRaid && mod != null && !mod.RaidModdable)
             {
-                error2 = new GClass3025(mod);
+                error2 = new GClass3297(mod);
             }
-            else if (!GClass2585.CheckMissingParts(mod, __instance.CurrentAddress, itemController, out gclass))
+            else if (!InteractionsHandlerClass.CheckMissingParts(mod, __instance.CurrentAddress, itemController, out gclass))
             {
                 error2 = gclass;
             }
@@ -124,34 +131,34 @@ namespace PIRM
                 {
                     if (error2 != null)
                     {
-                        Slot.GClass3039 gclass2;
-                        if ((gclass2 = error2 as Slot.GClass3039) != null)
+                        Slot.GClass3314 gclass2;
+                        if ((gclass2 = error2 as Slot.GClass3314) != null)
                         {
-                            error2 = new Slot.GClass3039(gclass2.Item, slot, gclass2.MissingParts);
+                            error2 = new Slot.GClass3314(gclass2.Item, slot, gclass2.MissingParts);
                         }
                         flag = true;
                     }
                     else if (array != null && array.Contains(slot))
                     {
-                        error = new GClass3026(mod);
+                        error = new GClass3298(mod);
                     }
                     else
                     {
-                        GClass2578 gclass3 = new GClass2578(slot);
-                        GStruct375<GClass2597> gstruct = GClass2585.Move(item, gclass3, itemController, simulate);
+                        GClass2767 gclass3 = new GClass2767(slot);
+                        GStruct414<GClass2786> gstruct = InteractionsHandlerClass.Move(item, gclass3, itemController, simulate);
                         if (gstruct.Succeeded)
                         {
                             __result = gstruct;
                             return false;
                         }
-                        GStruct375<GClass2606> gstruct2 = GClass2585.SplitMax(item, int.MaxValue, gclass3, itemController, itemController, simulate);
+                        GStruct414<GClass2795> gstruct2 = InteractionsHandlerClass.SplitMax(item, int.MaxValue, gclass3, itemController, itemController, simulate);
                         if (gstruct2.Succeeded)
                         {
                             __result = gstruct2;
                             return false;
                         }
                         error = gstruct.Error;
-                        if (!GClass668.DisabledForNow && GClass2586.CanSwap(item, slot))
+                        if (!GClass747.DisabledForNow && GClass2775.CanSwap(item, slot))
                         {
                             __result = null;
                             return false;
@@ -163,20 +170,20 @@ namespace PIRM
             {
                 error2 = null;
             }
-            GStruct375<GInterface275> gstruct3 = GClass2585.QuickFindAppropriatePlace(item, itemController, __instance.ToEnumerable<LootItemClass>(), GClass2585.EMoveItemOrder.Apply, simulate);
+            GStruct414<GInterface324> gstruct3 = InteractionsHandlerClass.QuickFindAppropriatePlace(item, itemController, __instance.ToEnumerable<LootItemClass>(), InteractionsHandlerClass.EMoveItemOrder.Apply, simulate);
             if (gstruct3.Succeeded)
             {
                 __result = gstruct3;
                 return false;
             }
-            if (!(gstruct3.Error is GClass3021))
+            if (!(gstruct3.Error is GClass3293))
             {
                 error = gstruct3.Error;
             }
             Error error3;
             if ((error3 = error2) == null)
             {
-                error3 = error ?? new GClass3028(item, __instance);
+                error3 = error ?? new GClass3300(item, __instance);
             }
             __result = error3;
             return false;
