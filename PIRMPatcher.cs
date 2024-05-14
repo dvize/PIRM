@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using Aki.Reflection.Patching;
-using Diz.LanguageExtensions;
 using EFT.InventoryLogic;
 using EFT.UI;
 using EFT.UI.DragAndDrop;
 using HarmonyLib;
-using UnityEngine;
 
 namespace PIRM
 {
@@ -195,7 +190,7 @@ namespace PIRM
         }
 
     }
-}  
+}
 
 
 

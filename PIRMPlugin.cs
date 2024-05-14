@@ -3,7 +3,7 @@
 namespace PIRM
 {
 
-    [BepInPlugin("com.dvize.PIRM", "dvize.PIRM", "1.8.0")]
+    [BepInPlugin("com.dvize.PIRM", "dvize.PIRM", "1.9.0")]
     //[BepInDependency("com.spt-aki.core", "3.7.4")]
     class PIRMPlugin : BaseUnityPlugin
     {
