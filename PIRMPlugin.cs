@@ -1,7 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using BepInEx;
-using VersionChecker;
+﻿using BepInEx;
 
 namespace PIRM
 {
@@ -20,9 +17,11 @@ namespace PIRM
             new ItemCheckAction().Enable();
             new EFTInventoryLogicModPatch().Enable();
             new LootItemApplyPatch().Enable();
-            //new SlotMethod_2Patch().Enable();  - seems to enable all equipment slots to take any item instead of the weapon slot.  error coming from weapon check itself somewhere.  says multitool required
+            new SlotMethod_4Patch().Enable();
+            new SlotRemoveItemPatch().Enable();
+            new CanAcceptRaidPatch().Enable();
         }
 
-        
+
     }
 }
