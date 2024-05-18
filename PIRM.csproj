@@ -113,6 +113,7 @@
     <Compile Include="PIRMPatcher.cs" />
     <Compile Include="PIRMPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ConfigurationManagerAttributes.cs" />
     <Compile Include="VersionChecker\TarkovVersion.cs" />
   </ItemGroup>
   <ItemGroup>

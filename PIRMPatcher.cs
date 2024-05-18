@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Aki.Reflection.Patching;
+using Diz.LanguageExtensions;
 using EFT.InventoryLogic;
 using EFT.UI;
 using EFT.UI.DragAndDrop;
@@ -35,7 +38,6 @@ namespace PIRM
         [PatchPrefix]
         public static bool Prefix(Item item, ItemAddress to, TraderControllerClass itemController, ref GStruct416<GClass3348> __result)
         {
-
             if (GClass1849.InRaid)
             {
                 __result = GClass3348._;
@@ -53,7 +55,6 @@ namespace PIRM
         [PatchPrefix]
         public static bool Prefix(ItemAddress location, ref bool __result)
         {
-            // Set the result to true and return false to skip the original method
             __result = true;
             return false;
         }
@@ -84,21 +85,130 @@ namespace PIRM
             error = null;
         }
     }
-    public class SlotMethod_4Patch : ModulePatch
-    {
-        protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(Slot), nameof(Slot.method_4));
 
-        [PatchPostfix]
-        private static void Postfix(ref GStruct416<bool> __result, Item item, bool ignoreRestrictions = false, bool ignoreMalfunction = false)
+
+    //Gets rid of the compatibility check (even when ui highlights the slot as incompatible)
+    public class SlotMethod4Patch : ModulePatch
+    {
+        protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(Slot), (nameof(Slot.method_4)));
+
+        [PatchPrefix]
+        public static bool Prefix(Item item, bool ignoreRestrictions, bool ignoreMalfunction, ref GStruct416<bool> __result, Slot __instance)
         {
-            if (__result.GetType() == typeof(Slot.GClass3308))
+            if (__instance.ContainedItem != null)
+            {
+                __result = new Slot.GClass3315(item, __instance);
+                return false;
+            }
+            if (ignoreRestrictions)
             {
                 __result = true;
+                return false;
+            }
+            if (__instance.Locked)
+            {
+                __result = new Slot.GClass3308(__instance);
+                return false;
+            }
+            InventoryError inventoryError;
+            if (!__instance.CanAcceptRaid(out inventoryError))
+            {
+                __result = inventoryError;
+                return false;
+            }
+            if (!__instance.Examined(item) && !(item is BulletClass))
+            {
+                __result = new Slot.GClass3312(item, __instance);
+                return false;
+            }
+            //only do compatibility check if slot is not armor holding component slot
+            var armorHolderComponent = __instance.ParentItem.GetItemComponent<ArmorHolderComponent>();
+            if (armorHolderComponent == null)
+            {
+                if (!__instance.CheckCompatibility(item))
+                {
+                    __result = new Slot.GClass3316(item, __instance);
+                    return false;
+                }
             }
 
+            if (__instance.BlockerSlots.Count > 0)
+            {
+                __result = new Slot.GClass3309(item, __instance);
+                return false;
+            }
+            GStruct416<bool> gstruct = __instance.method_3(item);
+            if (gstruct.Failed)
+            {
+                __result = gstruct.Error;
+                return false;
+            }
+            if (item.IsSpecialSlotOnly && !__instance.IsSpecial)
+            {
+                __result = new Slot.GClass3316(item, __instance);
+                return false;
+            }
+            if (__instance.ConflictingSlots != null)
+            {
+                using (IEnumerator<Slot> enumerator = __instance.method_2(item).GetEnumerator())
+                {
+                    while (enumerator.MoveNext())
+                    {
+                        Slot slot = enumerator.Current;
+                        if (slot.ContainedItem != null)
+                        {
+                            __result = new Slot.GClass3310(item, __instance, slot);
+                            return false;
+                        }
+                    }
+                }
+            }
+            Weapon weapon;
+            if (!ignoreMalfunction && (weapon = __instance.ParentItem.GetRootItem() as Weapon) != null && weapon.IncompatibleByMalfunction(item))
+            {
+                __result = new InteractionsHandlerClass.GClass3328(item, weapon);
+                return false;
+            }
+            Weapon weapon2;
+            if ((weapon2 = item as Weapon) != null && __instance.Id != "BuildSlot")
+            {
+                List<Slot> list = weapon2.MissingVitalParts.ToList<Slot>();
+                if (list.Any<Slot>())
+                {
+                    __result = new Slot.GClass3314(weapon2, __instance, list);
+                    return false;
+                }
+            }
+            __result = true;
+            return false;
         }
-
     }
+    public class IsModSuitablePatch : ModulePatch
+    {
+        protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(ArmorHolderComponent), (nameof(ArmorHolderComponent.IsModSuitable)));
+
+        [PatchPrefix]
+        public static bool Prefix(Item item, ArmorHolderComponent __instance, ref bool __result, LootItemClass ___gclass2629_0)
+        {
+            if (IsArmorPlate(item))
+            {
+                __result = true;
+                return false;
+            }
+
+            __result = false;
+            return false;
+        }
+        private static bool IsArmorPlate(Item item)
+        {
+            var armorComponent = item.GetItemComponent<ArmorComponent>();
+            return armorComponent != null &&
+                   armorComponent.GetArmorPlateColliders().Any() &&
+                   item.GetItemComponent<HelmetComponent>() == null;
+        }
+    }
+
+    
     public class SlotRemoveItemPatch : ModulePatch
     {
         protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(Slot), nameof(Slot.RemoveItem));
@@ -107,89 +217,119 @@ namespace PIRM
         public static bool Prefix(ref GStruct416<bool> __result, Slot __instance)
         {
             //display parent of item for logging purposes
-            if (__instance.ContainedItem != null)
+            /* if (__instance.ContainedItem != null)
             {
                 UnityEngine.Debug.LogWarning($"Parent of item: {__instance.ContainedItem.Parent}");
-            }
-
-            if (__instance.Locked)
+            }*/
+            if (PIRMPlugin.AllowSwapAnyArmorPlate.Value)
             {
-                __instance.Locked = false;
-
-                /*Item containedItem = __instance.ContainedItem;
-
-                if (!(containedItem is BulletClass) && !__instance.Examined(containedItem))
+                if (__instance.Locked)
                 {
-                    __result = new Slot.GClass3313(containedItem, __instance);
-                    return false;
+                    __instance.Locked = false;
                 }
-                Weapon weapon;
-
-                if ((weapon = __instance.ParentItem.GetRootItem() as Weapon) != null && weapon.IncompatibleByMalfunction(containedItem))
-                {
-                    __result = new InteractionsHandlerClass.GClass3328(containedItem, weapon);
-                    return false;
-                }
-
-                foreach (Slot slot in __instance.method_2(containedItem))
-                {
-                    slot.BlockerSlots.Remove(__instance);
-                }
-
-                containedItem.CurrentAddress = null;
-                __instance.ContainedItem = null;
-                
-                var onAddOrRemoveItemField = AccessTools.Field(typeof(Slot), "OnAddOrRemoveItem");
-                Action<Item, bool> onAddOrRemoveItem = (Action<Item, bool>)onAddOrRemoveItemField.GetValue(__instance);
-
-                if (onAddOrRemoveItem != null)
-                {
-                    onAddOrRemoveItem(containedItem, false);
-                }
-
-                __result = true;
-                return false;*/
             }
-
+            
             return true;
         }
     }
     public class LootItemApplyPatch : ModulePatch
     {
-        protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(LootItemClass), nameof(LootItemClass.Apply));
+        protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(LootItemClass), "Apply");
 
         [PatchPrefix]
-        public static void Postfix(ref GStruct413 __result, TraderControllerClass itemController, Item item, int count, bool simulate, LootItemClass __instance)
+        private static bool Prefix(ref LootItemClass __instance, ref GStruct413 __result, TraderControllerClass itemController, Item item, int count, bool simulate)
         {
-            foreach (Slot slot in __instance.AllSlots)
+            if (!item.ParentRecursiveCheck(__instance))
             {
-                GClass2767 gclass3 = new GClass2767(slot);
+                __result = new GClass3300(item, __instance);
+                return false;
+            }
+            //bool inRaid = GClass1849.InRaid;
+            bool inRaid = false;
 
-                GStruct414<GClass2786> gstruct = InteractionsHandlerClass.Move(item, gclass3, itemController, simulate);
-                if (gstruct.Succeeded)
-                {
-                    __result = gstruct;
-                    return;
-                }
+            Error error = null;
+            Error error2 = null;
 
-                GStruct414<GClass2795> gstruct2 = InteractionsHandlerClass.SplitMax(item, int.MaxValue, gclass3, itemController, itemController, simulate);
-                if (gstruct2.Succeeded)
-                {
-                    __result = gstruct2;
-                    return;
-                }
+            Mod mod = item as Mod;
+            Slot[] array = ((mod != null && inRaid) ? __instance.VitalParts.ToArray<Slot>() : null);
+            Slot.GClass3314 gclass;
+
+            if (inRaid && mod != null && !mod.RaidModdable)
+            {
+                error2 = new GClass3297(mod);
+            }
+            else if (!InteractionsHandlerClass.CheckMissingParts(mod, __instance.CurrentAddress, itemController, out gclass))
+            {
+                error2 = gclass;
             }
 
-            GStruct414<GInterface324> gstruct3 = InteractionsHandlerClass.QuickFindAppropriatePlace(item, itemController, __instance.ToEnumerable(), InteractionsHandlerClass.EMoveItemOrder.Apply, simulate);
+            bool flag = false;
+            foreach (Slot slot in __instance.AllSlots)
+            {
+                if ((error2 == null || !flag) && slot.CanAccept(item))
+                {
+                    if (error2 != null)
+                    {
+                        Slot.GClass3314 gclass2;
+                        if ((gclass2 = error2 as Slot.GClass3314) != null)
+                        {
+                            error2 = new Slot.GClass3314(gclass2.Item, slot, gclass2.MissingParts);
+                        }
+                        flag = true;
+                    }
+                    else if (array != null && array.Contains(slot))
+                    {
+                        error = new GClass3298(mod);
+                    }
+                    else
+                    {
+                        GClass2767 gclass3 = new GClass2767(slot);
+                        GStruct414<GClass2786> gstruct = InteractionsHandlerClass.Move(item, gclass3, itemController, simulate);
+                        if (gstruct.Succeeded)
+                        {
+                            __result = gstruct;
+                            return false;
+                        }
+                        GStruct414<GClass2795> gstruct2 = InteractionsHandlerClass.SplitMax(item, int.MaxValue, gclass3, itemController, itemController, simulate);
+                        if (gstruct2.Succeeded)
+                        {
+                            __result = gstruct2;
+                            return false;
+                        }
+                        error = gstruct.Error;
+                        if (!GClass747.DisabledForNow && GClass2775.CanSwap(item, slot))
+                        {
+                            __result = null;
+                            return false;
+                        }
+                    }
+                }
+            }
+            if (!flag)
+            {
+                error2 = null;
+            }
+            GStruct414<GInterface324> gstruct3 = InteractionsHandlerClass.QuickFindAppropriatePlace(item, itemController, __instance.ToEnumerable<LootItemClass>(), InteractionsHandlerClass.EMoveItemOrder.Apply, simulate);
             if (gstruct3.Succeeded)
             {
                 __result = gstruct3;
-                return;
+                return false;
             }
-
+            if (!(gstruct3.Error is GClass3293))
+            {
+                error = gstruct3.Error;
+            }
+            Error error3;
+            if ((error3 = error2) == null)
+            {
+                error3 = error ?? new GClass3300(item, __instance);
+            }
+            __result = error3;
+            return false;
         }
 
     }
+
 }
 
 
