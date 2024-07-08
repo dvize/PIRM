@@ -157,7 +157,7 @@ namespace PIRM
             var armorHolderComponent = __instance.ParentItem.GetItemComponent<ArmorHolderComponent>();
 #if DEBUG
             bool isArmorHolderComponentBool = armorHolderComponent != null;
-            Logger.LogWarning("Checking Slot Compatibility: " + __instance.Name + " ArmorHolderComponent: " + isArmorHolderComponentBool + " Item: " + item.Name.Localized() + " IsArmorMod: " + item.IsArmorMod());
+            //Logger.LogWarning("Checking Slot Compatibility: " + __instance.Name + " ArmorHolderComponent: " + isArmorHolderComponentBool + " Item: " + item.Name.Localized() + " IsArmorMod: " + item.IsArmorMod());
 #endif 
             if (armorHolderComponent == null)
             {
