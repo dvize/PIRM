@@ -30,7 +30,7 @@ namespace PIRM
             new CanAcceptRaidPatch().Enable();
 
             new SlotMethod4Patch().Enable();
-            //new IsModSuitablePatch().Enable();
+            new IsModSuitablePatch().Enable();
             
         }
 
