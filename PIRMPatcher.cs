@@ -252,6 +252,8 @@ namespace PIRM
             {
                 UnityEngine.Debug.LogWarning($"Parent of item: {__instance.ContainedItem.Parent}");
             }*/
+
+            //Seems if its unlocked then we can't restore the default when toggled.
             if (PIRMPlugin.AllowSwapAnyArmorPlate.Value)
             {
                 if (__instance.Locked)
