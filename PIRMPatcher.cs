@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Aki.Reflection.Patching;
+using SPT.Reflection.Patching;
 using Diz.LanguageExtensions;
 using EFT.InventoryLogic;
 using EFT.UI;
@@ -16,16 +16,16 @@ namespace PIRM
         protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(ItemSpecificationPanel), "method_17");
 
         [PatchPrefix]
-        public static bool PatchPrefix(ref KeyValuePair<EModLockedState, ModSlotView.GStruct399> __result, Slot slot)
+        public static bool PatchPrefix(ref KeyValuePair<EModLockedState, ModSlotView.GStruct398> __result, Slot slot)
         {
             string itemName = slot.ContainedItem != null ? slot.ContainedItem.Name.Localized() : string.Empty;
-            ModSlotView.GStruct399 structValue = new ModSlotView.GStruct399
+            ModSlotView.GStruct398 structValue = new ModSlotView.GStruct398
             {
                 ItemName = itemName,
                 Error = string.Empty
             };
 
-            __result = new KeyValuePair<EModLockedState, ModSlotView.GStruct399>(EModLockedState.Unlocked, structValue);
+            __result = new KeyValuePair<EModLockedState, ModSlotView.GStruct398>(EModLockedState.Unlocked, structValue);
 
             return false;
         }
@@ -36,11 +36,11 @@ namespace PIRM
         protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(InteractionsHandlerClass), "smethod_1");
 
         [PatchPrefix]
-        public static bool Prefix(Item item, ItemAddress to, TraderControllerClass itemController, ref GStruct416<GClass3348> __result)
+        public static bool Prefix(Item item, ItemAddress to, TraderControllerClass itemController, ref GStruct416<GClass3372> __result)
         {
-            if (GClass1849.InRaid)
+            if (GClass1864.InRaid)
             {
-                __result = GClass3348._;
+                __result = GClass3372._;
                 return false;
             }
 
@@ -76,7 +76,7 @@ namespace PIRM
     }
     public class CanAcceptRaidPatch : ModulePatch
     {
-        protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(GClass2511), (nameof(GClass2511.CanAcceptRaid)));
+        protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(GClass2525), (nameof(GClass2525.CanAcceptRaid)));
 
         [PatchPostfix]
         public static void Postfix(ref bool __result, ref InventoryError error)
@@ -97,7 +97,7 @@ namespace PIRM
         {
             if (__instance.ContainedItem != null)
             {
-                __result = new Slot.GClass3315(item, __instance);
+                __result = new Slot.GClass3339(item, __instance);
                 return false;
             }
             if (ignoreRestrictions)
@@ -107,7 +107,7 @@ namespace PIRM
             }
             if (__instance.Locked)
             {
-                __result = new Slot.GClass3308(__instance);
+                __result = new Slot.GClass3332(__instance);
                 return false;
             }
             InventoryError inventoryError;
@@ -118,7 +118,7 @@ namespace PIRM
             }
             if (!__instance.Examined(item) && !(item is BulletClass))
             {
-                __result = new Slot.GClass3312(item, __instance);
+                __result = new Slot.GClass3336(item, __instance);
                 return false;
             }
             //only do compatibility check if slot is not armor holding component slot
@@ -127,14 +127,14 @@ namespace PIRM
             {
                 if (!__instance.CheckCompatibility(item))
                 {
-                    __result = new Slot.GClass3316(item, __instance);
+                    __result = new Slot.GClass3340(item, __instance);
                     return false;
                 }
             }
 
             if (__instance.BlockerSlots.Count > 0)
             {
-                __result = new Slot.GClass3309(item, __instance);
+                __result = new Slot.GClass3333(item, __instance);
                 return false;
             }
             GStruct416<bool> gstruct = __instance.method_3(item);
@@ -145,7 +145,7 @@ namespace PIRM
             }
             if (item.IsSpecialSlotOnly && !__instance.IsSpecial)
             {
-                __result = new Slot.GClass3316(item, __instance);
+                __result = new Slot.GClass3340(item, __instance);
                 return false;
             }
             if (__instance.ConflictingSlots != null)
@@ -157,7 +157,7 @@ namespace PIRM
                         Slot slot = enumerator.Current;
                         if (slot.ContainedItem != null)
                         {
-                            __result = new Slot.GClass3310(item, __instance, slot);
+                            __result = new Slot.GClass3334(item, __instance, slot);
                             return false;
                         }
                     }
@@ -166,7 +166,7 @@ namespace PIRM
             Weapon weapon;
             if (!ignoreMalfunction && (weapon = __instance.ParentItem.GetRootItem() as Weapon) != null && weapon.IncompatibleByMalfunction(item))
             {
-                __result = new InteractionsHandlerClass.GClass3328(item, weapon);
+                __result = new InteractionsHandlerClass.GClass3352(item, weapon);
                 return false;
             }
             Weapon weapon2;
@@ -175,7 +175,7 @@ namespace PIRM
                 List<Slot> list = weapon2.MissingVitalParts.ToList<Slot>();
                 if (list.Any<Slot>())
                 {
-                    __result = new Slot.GClass3314(weapon2, __instance, list);
+                    __result = new Slot.GClass3338(weapon2, __instance, list);
                     return false;
                 }
             }
@@ -188,7 +188,7 @@ namespace PIRM
         protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(ArmorHolderComponent), (nameof(ArmorHolderComponent.IsModSuitable)));
 
         [PatchPrefix]
-        public static bool Prefix(Item item, ArmorHolderComponent __instance, ref bool __result, LootItemClass ___gclass2629_0)
+        public static bool Prefix(Item item, ArmorHolderComponent __instance, ref bool __result)
         {
             if (IsArmorPlate(item))
             {
@@ -241,7 +241,7 @@ namespace PIRM
         {
             if (!item.ParentRecursiveCheck(__instance))
             {
-                __result = new GClass3300(item, __instance);
+                __result = new GClass3324(item, __instance);
                 return false;
             }
             //bool inRaid = GClass1849.InRaid;
@@ -252,11 +252,11 @@ namespace PIRM
 
             Mod mod = item as Mod;
             Slot[] array = ((mod != null && inRaid) ? __instance.VitalParts.ToArray<Slot>() : null);
-            Slot.GClass3314 gclass;
+            Slot.GClass3338 gclass;
 
             if (inRaid && mod != null && !mod.RaidModdable)
             {
-                error2 = new GClass3297(mod);
+                error2 = new GClass3321(mod);
             }
             else if (!InteractionsHandlerClass.CheckMissingParts(mod, __instance.CurrentAddress, itemController, out gclass))
             {
@@ -270,34 +270,34 @@ namespace PIRM
                 {
                     if (error2 != null)
                     {
-                        Slot.GClass3314 gclass2;
-                        if ((gclass2 = error2 as Slot.GClass3314) != null)
+                        Slot.GClass3338 gclass2;
+                        if ((gclass2 = error2 as Slot.GClass3338) != null)
                         {
-                            error2 = new Slot.GClass3314(gclass2.Item, slot, gclass2.MissingParts);
+                            error2 = new Slot.GClass3338(gclass2.Item, slot, gclass2.MissingParts);
                         }
                         flag = true;
                     }
                     else if (array != null && array.Contains(slot))
                     {
-                        error = new GClass3298(mod);
+                        error = new GClass3322(mod);
                     }
                     else
                     {
-                        GClass2767 gclass3 = new GClass2767(slot);
-                        GStruct414<GClass2786> gstruct = InteractionsHandlerClass.Move(item, gclass3, itemController, simulate);
+                        GClass2783 gclass3 = new GClass2783(slot);
+                        GStruct414<GClass2802> gstruct = InteractionsHandlerClass.Move(item, gclass3, itemController, simulate);
                         if (gstruct.Succeeded)
                         {
                             __result = gstruct;
                             return false;
                         }
-                        GStruct414<GClass2795> gstruct2 = InteractionsHandlerClass.SplitMax(item, int.MaxValue, gclass3, itemController, itemController, simulate);
+                        GStruct414<GClass2811> gstruct2 = InteractionsHandlerClass.SplitMax(item, int.MaxValue, gclass3, itemController, itemController, simulate);
                         if (gstruct2.Succeeded)
                         {
                             __result = gstruct2;
                             return false;
                         }
                         error = gstruct.Error;
-                        if (!GClass747.DisabledForNow && GClass2775.CanSwap(item, slot))
+                        if (!GClass748.DisabledForNow && GClass2791.CanSwap(item, slot))
                         {
                             __result = null;
                             return false;
@@ -309,20 +309,20 @@ namespace PIRM
             {
                 error2 = null;
             }
-            GStruct414<GInterface324> gstruct3 = InteractionsHandlerClass.QuickFindAppropriatePlace(item, itemController, __instance.ToEnumerable<LootItemClass>(), InteractionsHandlerClass.EMoveItemOrder.Apply, simulate);
+            GStruct414<GInterface339> gstruct3 = InteractionsHandlerClass.QuickFindAppropriatePlace(item, itemController, __instance.ToEnumerable<LootItemClass>(), InteractionsHandlerClass.EMoveItemOrder.Apply, simulate);
             if (gstruct3.Succeeded)
             {
                 __result = gstruct3;
                 return false;
             }
-            if (!(gstruct3.Error is GClass3293))
+            if (!(gstruct3.Error is GClass3317))
             {
                 error = gstruct3.Error;
             }
             Error error3;
             if ((error3 = error2) == null)
             {
-                error3 = error ?? new GClass3300(item, __instance);
+                error3 = error ?? new GClass3324(item, __instance);
             }
             __result = error3;
             return false;

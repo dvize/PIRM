@@ -1,6 +1,5 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
-using VersionChecker;
 
 
 [assembly: AssemblyTitle("dvize.PIRM")]
@@ -18,6 +17,5 @@ using VersionChecker;
 [assembly: Guid("8fdfc616-1704-4056-a87e-2783692cc153")]
 
 
-[assembly: AssemblyVersion("1.9.1.0")]
-[assembly: AssemblyFileVersion("1.9.1.0")]
-[assembly: TarkovVersion(29197)]
+[assembly: AssemblyVersion("2.0.0.0")]
+[assembly: AssemblyFileVersion("2.0.0.0")]
