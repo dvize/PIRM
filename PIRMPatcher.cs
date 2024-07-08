@@ -121,17 +121,6 @@ namespace PIRM
                 __result = new Slot.GClass3336(item, __instance);
                 return false;
             }
-            //only do compatibility check if slot is not armor holding component slot
-            var armorHolderComponent = __instance.ParentItem.GetItemComponent<ArmorHolderComponent>();
-            if (armorHolderComponent == null)
-            {
-                if (!__instance.CheckCompatibility(item))
-                {
-                    __result = new Slot.GClass3340(item, __instance);
-                    return false;
-                }
-            }
-
             if (__instance.BlockerSlots.Count > 0)
             {
                 __result = new Slot.GClass3333(item, __instance);
@@ -163,6 +152,53 @@ namespace PIRM
                     }
                 }
             }
+
+            //check at parent level if we are dealing with armor by checking for ArmorHolderComponent
+            var armorHolderComponent = __instance.ParentItem.GetItemComponent<ArmorHolderComponent>();
+#if DEBUG
+            bool isArmorHolderComponentBool = armorHolderComponent != null;
+            Logger.LogWarning("Checking Slot Compatibility: " + __instance.Name + " ArmorHolderComponent: " + isArmorHolderComponentBool + " Item: " + item.Name.Localized() + " IsArmorMod: " + item.IsArmorMod());
+#endif 
+            if (armorHolderComponent == null)
+            {
+                if (!__instance.CheckCompatibility(item))
+                {
+                    __result = new Slot.GClass3340(item, __instance);
+                    return false;
+                }
+            }
+            else
+            {
+                //we know it has armor holder component so we need to deal with child mod slots logic to make sure it can be placed in the slot
+
+                //if the currently checked slot has colliders then it is an armor slot
+                bool isArmorSlot = __instance.ArmorColliders.Length > 0;
+
+                //we want to check if its acceptable for slot only if PIRMPlugin.AllowSwapAnyArmorPlate is false
+#if DEBUG
+                Logger.LogError("ArmorSlot: " + isArmorSlot + " IsArmorMod: " + item.IsArmorMod() + " IsModSuitable: " + armorHolderComponent.IsModSuitable(item));
+#endif
+
+                if (isArmorSlot && armorHolderComponent.IsModSuitable(item))
+                {
+                    //if no other item is there return true since we don't need to check weapons
+                    if (__instance.ContainedItem == null)
+                    {
+                        __result = true;
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (!__instance.CheckCompatibility(item))
+                    {
+                        __result = new Slot.GClass3340(item, __instance);
+                        return false;
+                    }
+                }
+
+            }
+
             Weapon weapon;
             if (!ignoreMalfunction && (weapon = __instance.ParentItem.GetRootItem() as Weapon) != null && weapon.IncompatibleByMalfunction(item))
             {
@@ -188,24 +224,19 @@ namespace PIRM
         protected override MethodBase GetTargetMethod() => AccessTools.Method(typeof(ArmorHolderComponent), (nameof(ArmorHolderComponent.IsModSuitable)));
 
         [PatchPrefix]
-        public static bool Prefix(Item item, ArmorHolderComponent __instance, ref bool __result)
+        public static bool Prefix(Item item, ArmorHolderComponent __instance, ref bool __result, LootItemClass ___lootItemClass)
         {
-            if (IsArmorPlate(item))
+            //if armormod and PIRMPlugin.AllowSwapAnyArmorPlate is true then assume its suitable
+            if (item.IsArmorMod() && PIRMPlugin.AllowSwapAnyArmorPlate.Value)
             {
                 __result = true;
                 return false;
             }
+            
+            //return true to check the original logic
+            return true;
+        }
 
-            __result = false;
-            return false;
-        }
-        private static bool IsArmorPlate(Item item)
-        {
-            var armorComponent = item.GetItemComponent<ArmorComponent>();
-            return armorComponent != null &&
-                   armorComponent.GetArmorPlateColliders().Any() &&
-                   item.GetItemComponent<HelmetComponent>() == null;
-        }
     }
 
     

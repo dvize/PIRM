@@ -5,7 +5,7 @@ using BepInEx.Configuration;
 namespace PIRM
 {
 
-    [BepInPlugin("com.dvize.PIRM", "dvize.PIRM", "2.0.0")]
+    [BepInPlugin("com.dvize.PIRM", "dvize.PIRM", "2.0.1")]
     //[BepInDependency("com.spt-aki.core", "3.7.4")]
     class PIRMPlugin : BaseUnityPlugin
     {
@@ -30,9 +30,8 @@ namespace PIRM
             new CanAcceptRaidPatch().Enable();
 
             new SlotMethod4Patch().Enable();
-            new IsModSuitablePatch().Enable();
-            //new CheckItemFilterPatch().Enable();
-            //new CheckItemExcludedFilterPatch().Enable();
+            //new IsModSuitablePatch().Enable();
+            
         }
 
 
