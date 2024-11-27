@@ -2,12 +2,12 @@
 using BepInEx;
 using BepInEx.Configuration;
 
-namespace PIRM
+namespace MIR
 {
 
-    [BepInPlugin("com.dvize.PIRM", "dvize.PIRM", "2.0.1")]
+    [BepInPlugin("com.dvize.MIR", "dvize.MIR", "3.0.0")]
     //[BepInDependency("com.spt-aki.core", "3.7.4")]
-    class PIRMPlugin : BaseUnityPlugin
+    class MIRPlugin : BaseUnityPlugin
     {
         internal static ConfigEntry<Boolean> AllowSwapAnyArmorPlate
         {
@@ -15,21 +15,21 @@ namespace PIRM
         }
         private void Awake()
         {
-            AllowSwapAnyArmorPlate = Config.Bind("1. Main Settings", "AllowSwapAnyArmorPlate", false, 
-                new ConfigDescription("Allows swapping different types of armor plates in eachothers slots", null, 
+            AllowSwapAnyArmorPlate = Config.Bind("1. Main Settings", "AllowSwapAnyArmorPlate", false,
+                new ConfigDescription("Allows swapping different types of armor plates in eachothers slots", null,
                 new ConfigurationManagerAttributes { IsAdvanced = false, Order = 1 }));
         }
         private void Start()
         {
-            new PIRMMethod17Patch().Enable();
+            new MIRMethod21Patch().Enable();
             new InteractionsHandlerPatch().Enable();
-            new ItemCheckAction().Enable();
+            /// new ItemCheckAction().Enable();
             new EFTInventoryLogicModPatch().Enable();
             new LootItemApplyPatch().Enable();
             new SlotRemoveItemPatch().Enable();
             new CanAcceptRaidPatch().Enable();
 
-            new SlotMethod4Patch().Enable();
+            new SlotMethod5Patch().Enable();
             new IsModSuitablePatch().Enable();
             
         }

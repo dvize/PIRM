@@ -1,13 +1,13 @@
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
 
-[assembly: AssemblyTitle("dvize.PIRM")]
+[assembly: AssemblyTitle("dvize.MIR")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("dvize.PIRM")]
-[assembly: AssemblyCopyright("Copyright �  2024")]
+[assembly: AssemblyProduct("dvize.MIR")]
+[assembly: AssemblyCopyright("Copyright © 2024")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
